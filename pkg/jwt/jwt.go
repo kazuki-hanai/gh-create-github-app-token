@@ -1,4 +1,4 @@
-package internal
+package jwt
 
 import (
 	"crypto"
@@ -13,9 +13,13 @@ import (
 	"fmt"
 )
 
+type JwtTokenGenerator interface {
+	GenerateJwtToken(payload JwtPayload) (string, error)
+}
+
 // JWTTokenGenerator implements the TokenGenerator interface for generating a JWT token.
-type JwtTokenGenerator struct {
-	PrivateKey string
+type JwtTokenGeneratorImpl struct {
+	rsaPrivateKey *rsa.PrivateKey
 }
 
 // Header defines the JWT Header.
@@ -31,19 +35,26 @@ type JwtPayload struct {
 	Iss string `json:"iss"`
 }
 
-func (g *JwtTokenGenerator) GenerateToken(payload JwtPayload) (string, error) {
-	PrivateKey, err := convertPrivateKey(g.PrivateKey)
+func NewJwtTokenGenerator(privateKey string) (JwtTokenGenerator, error) {
+	rsaPrivateKey, err := convertPrivateKey(privateKey)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	if isPkcs1(PrivateKey) {
-		return "", errors.New("Private Key is in PKCS#1 format, but only PKCS#8 is supported")
+	if isPkcs1(rsaPrivateKey) {
+		return nil, errors.New("Private Key is in PKCS#1 format, but only PKCS#8 is supported")
 	}
 
-	if isOpenSsh(PrivateKey) {
-		return "", errors.New("Private Key is in OpenSSH format, but only PKCS#8 is supported")
+	if isOpenSsh(rsaPrivateKey) {
+		return nil, errors.New("Private Key is in OpenSSH format, but only PKCS#8 is supported")
 	}
+
+	return &JwtTokenGeneratorImpl{
+		rsaPrivateKey: rsaPrivateKey,
+	}, nil
+}
+
+func (g *JwtTokenGeneratorImpl) GenerateJwtToken(payload JwtPayload) (string, error) {
 
 	header := JwtHeader{Alg: "RS256", Typ: "JWT"}
 	headerJson, err := json.Marshal(header)
@@ -60,7 +71,7 @@ func (g *JwtTokenGenerator) GenerateToken(payload JwtPayload) (string, error) {
 	encodedMessage := fmt.Sprintf("%s.%s", headerEncoded, payloadEncoded)
 
 	hashed := sha256.Sum256([]byte(encodedMessage))
-	signature, err := rsa.SignPKCS1v15(rand.Reader, PrivateKey, crypto.SHA256, hashed[:])
+	signature, err := rsa.SignPKCS1v15(rand.Reader, g.rsaPrivateKey, crypto.SHA256, hashed[:])
 	if err != nil {
 		return "", err
 	}

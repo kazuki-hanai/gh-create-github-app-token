@@ -1,7 +1,8 @@
-NAME=create-github-app-token
+CMD=create-github-app-token
+CMDPATH=cmd/create-github-app-token/main.go
 
 run:
-	go run main.go
+	go run $(CMDPATH) --debug=true
 
 build:
-	go build -o $(NAME) main.go
+	go build -o $(CMD) $(CMDPATH)
