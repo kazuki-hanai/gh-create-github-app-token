@@ -1,0 +1,49 @@
+name: Release binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  WIN_AMD64_BINARY: gh-create-github-app-token-windows-amd64.exe
+  LINUX_AMD64_BINARY: gh-create-github-app-token-linux-amd64
+  MAC_AMD64_BINARY: gh-create-github-app-token-darwin-amd64
+  MAC_ARM64_BINARY: gh-create-github-app-token-darwin-arm64
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+
+      - name: Build binaries
+        run: |
+          GOOS=windows GOARCH=amd64 go build -o $WIN_AMD64_BINARY
+          GOOS=linux GOARCH=amd64 go build -o $LINUX_AMD64_BINARY
+          GOOS=darwin GOARCH=amd64 go build -o $MAC_AMD64_BINARY
+          GOOS=darwin GOARCH=arm64 go build -o $MAC_ARM64_BINARY
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            ${{ env.WIN_AMD64_BINARY }}
+            ${{ env.LINUX_AMD64_BINARY }}
+            ${{ env.MAC_AMD64_BINARY }}
+            ${{ env.MAC_ARM64_BINARY }}
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Release ${{ github.ref }}
+          draft: false
+          prerelease: false
