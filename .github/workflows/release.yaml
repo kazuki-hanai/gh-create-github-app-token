@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v2
@@ -32,7 +32,7 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -41,9 +41,3 @@ jobs:
             ${{ env.LINUX_AMD64_BINARY }}
             ${{ env.MAC_AMD64_BINARY }}
             ${{ env.MAC_ARM64_BINARY }}
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            Release ${{ github.ref }}
-          draft: false
-          prerelease: false
