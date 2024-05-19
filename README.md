@@ -1,12 +1,10 @@
 # gh-create-github-app-token
 
-## How to use
+This is a extension of gh command to create a GitHub App token.
+
+## How to install this extension
 
 ```bash
-$ make build
-$ export ORG=xxx
-$ export APP_ID=xxx
-$ export PRIVATE_KEY=$(cat /path/to/private-key.pem)
-$ export GITHUB_TOKEN=$(./create-github-app-token)
-$ gh api /orgs/$ORG/repos
+$ gh extension install kazuki-hanai/gh-create-github-app-token
+$ gh create-github-app-token --app-id="$APP_ID" --private-key="$(cat path/to/private-key.pem)" --org="$ORG"
 ```
