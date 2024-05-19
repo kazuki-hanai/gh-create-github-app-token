@@ -1,6 +1,6 @@
 module github.com/kazuki-hanai/gh-create-github-app-token
 
-go 1.22.1
+go 1.22
 
 require (
 	github.com/google/go-github/v62 v62.0.0
