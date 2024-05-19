@@ -1,35 +1,19 @@
-package main
+package cmd
 
 import (
 	"context"
-	"flag"
 	"fmt"
-	"os"
 	"time"
+
+	"github.com/spf13/cobra"
 
 	"github.com/kazuki-hanai/gh-create-github-app-token/pkg/config"
 	"github.com/kazuki-hanai/gh-create-github-app-token/pkg/github"
 	"github.com/kazuki-hanai/gh-create-github-app-token/pkg/jwt"
 	"github.com/kazuki-hanai/gh-create-github-app-token/pkg/token"
-
-	"github.com/rs/zerolog"
 )
 
-func getLogger() *zerolog.Logger {
-	logger := zerolog.New(os.Stdout)
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-	debug := flag.Bool("debug", false, "sets log level to debug")
-
-	flag.Parse()
-
-	// Default level for this example is info, unless debug flag is present
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	if *debug {
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	}
-
-	return &logger
-}
+var cfg config.Config
 
 func getJwtToken(c *config.Config) (string, error) {
 	jwtTokenGenerator, err := jwt.NewJwtTokenGenerator(c.PrivateKey)
@@ -76,24 +60,32 @@ func getGitHubAppToken(ctx context.Context, c *config.Config, jwtToken string) (
 	return token, nil
 }
 
-func main() {
-	logger := getLogger()
-	ctx := logger.WithContext(context.Background())
+var RootCmd = &cobra.Command{
+	Use:   "gh-create-github-app-token",
+	Short: "gh-create-github-app-token is a extension of gh command to create a GitHub App token.",
+	Long:  `gh-create-github-app-token is a extension of gh command to create a GitHub App token. It uses the GitHub App's private key to generate a JWT token and then uses the JWT token to generate a GitHub App token.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		ctx := context.Background()
 
-	config, err := config.NewConfig("", "", "")
-	if err != nil {
-		panic(err)
-	}
+		jwtToken, err := getJwtToken(&cfg)
+		if err != nil {
+			panic(err)
+		}
 
-	jwtToken, err := getJwtToken(config)
-	if err != nil {
-		panic(err)
-	}
+		token, err := getGitHubAppToken(ctx, &cfg, jwtToken)
+		if err != nil {
+			panic(err)
+		}
 
-	token, err := getGitHubAppToken(ctx, config, jwtToken)
-	if err != nil {
-		panic(err)
-	}
+		fmt.Println(token)
+	},
+}
 
-	fmt.Println(token)
+func init() {
+	RootCmd.PersistentFlags().StringVarP(&cfg.PrivateKey, "private-key", "p", "", "Path to the private key file")
+	RootCmd.PersistentFlags().StringVarP(&cfg.AppID, "app-id", "a", "", "GitHub App ID")
+	RootCmd.PersistentFlags().StringVarP(&cfg.Org, "org", "o", "", "GitHub App Installation ID")
+
+	RootCmd.MarkPersistentFlagRequired("private-key")
+	RootCmd.MarkPersistentFlagRequired("app-id")
 }

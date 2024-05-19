@@ -1,8 +1,12 @@
 CMD=gh-create-github-app-token
-CMDPATH=cmd/gh-create-github-app-token/main.go
+CMDPATH=main.go
 
 run:
 	go run $(CMDPATH) --debug=true
 
 build:
 	go build -o $(CMD) $(CMDPATH)
+
+deps:
+	go mod tidy
+	go mod vendor
