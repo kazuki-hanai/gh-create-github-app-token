@@ -1,4 +1,4 @@
-module github.com/kazuki-hanai/create-github-app-token
+module github.com/kazuki-hanai/gh-create-github-app-token
 
 go 1.22.1
 

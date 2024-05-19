@@ -2,8 +2,8 @@ package token
 
 import (
 	"context"
-	"github.com/kazuki-hanai/create-github-app-token/pkg/config"
-	"github.com/kazuki-hanai/create-github-app-token/pkg/github"
+	"github.com/kazuki-hanai/gh-create-github-app-token/pkg/config"
+	"github.com/kazuki-hanai/gh-create-github-app-token/pkg/github"
 )
 
 type GitHubAppTokenGenerator interface {

@@ -1,5 +1,5 @@
-CMD=create-github-app-token
-CMDPATH=cmd/create-github-app-token/main.go
+CMD=gh-create-github-app-token
+CMDPATH=cmd/gh-create-github-app-token/main.go
 
 run:
 	go run $(CMDPATH) --debug=true

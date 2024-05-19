@@ -7,10 +7,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/kazuki-hanai/create-github-app-token/pkg/config"
-	"github.com/kazuki-hanai/create-github-app-token/pkg/github"
-	"github.com/kazuki-hanai/create-github-app-token/pkg/jwt"
-	"github.com/kazuki-hanai/create-github-app-token/pkg/token"
+	"github.com/kazuki-hanai/gh-create-github-app-token/pkg/config"
+	"github.com/kazuki-hanai/gh-create-github-app-token/pkg/github"
+	"github.com/kazuki-hanai/gh-create-github-app-token/pkg/jwt"
+	"github.com/kazuki-hanai/gh-create-github-app-token/pkg/token"
 
 	"github.com/rs/zerolog"
 )

@@ -1,4 +1,4 @@
-# create-github-app-token
+# gh-create-github-app-token
 
 ## How to use
 
